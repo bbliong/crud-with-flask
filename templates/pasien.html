@@ -1,0 +1,557 @@
+
+<html>
+	<head>
+		<title>No Sidebar - Helios by HTML5 UP</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<!--[if lte IE 8]><script src="assets/js/ie/html5shiv.js"></script><![endif]-->
+		<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='vendor/bootstrap/css/bootstrap.min.css') }}">
+		<!-- <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='vendor/sweetalert-master/src/sweetalert.css') }}"> -->
+		<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+		<link rel="stylesheet" href="http://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css">
+	
+		<!--[if lte IE 8]><link rel="stylesheet" href="assets/css/ie8.css" /><![endif]-->
+	</head>
+	<body class="no-sidebar">
+		
+	<style>
+
+		table tr td input {
+			margin-bottom : 10px;
+		}
+		.table-data {
+			padding : 0 30px;
+		}
+		#cekNama {
+			color: #fff;
+		}
+		.data-form {
+			display: none;
+			width: 100%;
+			margin: 20px;
+			padding: 20px;
+			background-color: #2ecc71;
+			color: #fff;
+			font-weight: 400;
+			border-radius: 20px;
+		}
+
+		.data-form ul {
+			border-width: 3px;
+			border-style: dashed;
+			border-radius: 2px;
+			padding: 20px;
+			margin-bottom: 0;
+		}
+	</style>
+
+	{% with messages = get_flashed_messages(with_categories=true) %}
+	{% if messages %}
+		{%  for category, message in messages %}
+			<div class="alert alert-{{ category }}">
+				{{ message }}
+				<!-- {% if message['con_message']  %}
+					Password Not Match
+				{% endif %} -->
+			</div>
+		{% endfor %}
+	{% endif %}
+	{% endwith %}
+
+	<!-- Modal -->
+		<div class="modal fade bs-example-modal-lg" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
+			<div class="modal-dialog modal-lg" role="document">
+		
+			<!-- Modal content-->
+			<div class="modal-content">
+				<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+				</div>
+				<div class="modal-body">
+					<form action="/tambahPasien" method="POST">
+						<center><h2>Data Pasien</center></h2>  
+						<div class="table-data">
+								{{ form.hidden_tag()}}
+							<table style="margin:40px auto;">
+								<tr>
+									<td>Nama Pasien</td>
+									<td>{{ form.nama(class="")}}</td>
+								</tr>
+								<tr>
+									<td>Umur</td>
+									<td>{{ form.umur(class="")}}</td>
+								</tr>
+								<tr>
+								<td>Jenis Kelamin</td>
+									<td>
+									<div >
+										{% for subfield in form.jk %}
+											 {{ subfield }}{{ subfield.label(style="display:inline-block")}}
+										{% endfor %}
+									</div>
+									</td>
+							
+								</tr>
+								<tr>
+									<td>Alamat</td>
+									<td>{{ form.alamat(class="")}}</td>
+								</tr>
+								
+								<tr>
+								<td></td>
+								<td>{{form.submit()}}</td>
+								
+								</tr>
+								</table>
+						</div>
+					</form> 
+
+				</div>
+			</div>
+		
+			</div>
+		</div>
+
+		<div class="modal fade bs-example-modal-lg" id="editModal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
+			<div class="modal-dialog modal-lg" role="document">
+		
+			<!-- Modal content-->
+			<div class="modal-content">
+				<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+				</div>
+				<div class="modal-body">
+					<form action="/editPasien" method="POST">
+						<center><h2>Data Pasien</center></h2>  
+						<div class="table-data">
+								{{ form.hidden_tag()}}
+							<table style="margin:40px auto;">
+								<input type="hidden" id="editKD" name="editKD">
+								<tr>
+									<td>Nama Pasien</td>
+									<td>{{ form.nama(class="" ,id="editNama")}}</td>
+								</tr>
+								<tr>
+									<td>Umur</td>
+									<td>{{ form.umur(class="" ,id="editUmur")}}</td>
+								</tr>
+								<tr>
+								<td>Jenis Kelamin</td>
+									<td>
+									<div >
+										{% for subfield in form.editJK %}
+											 {{ subfield }}{{ subfield.label(style="display:inline-block")}}
+										{% endfor %}
+									</div>
+									</td>
+							
+								</tr>
+								<tr>
+									<td>Alamat</td>
+									<td>{{ form.alamat(class="", id="editAlamat")}}</td>
+								</tr>
+								
+								<tr>
+								<td></td>
+								<td>{{form.submit() }}</td>
+								
+								</tr>
+								</table>
+						</div>
+					</form> 
+
+				</div>
+			</div>
+		
+			</div>
+		</div>
+		
+		<div class="modal fade bs-example-modal-lg" id="rawatModal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
+				<div class="modal-dialog modal-lg" role="document">
+			
+				<!-- Modal content-->
+				<div class="modal-content">
+					<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+					</div>
+					<div class="modal-body">
+						<form action="/tambahPasien" method="POST">
+							<center><h2>Pendaftaran Rawat Inap</center></h2>  
+							<div class="table-data">
+									{{ form.hidden_tag()}}
+								<table style="margin:40px auto;">
+									<tr>
+										<td>Kode Pasien</td>
+										<td>{{ rawat.pasien(class="")}} <a id="cekNama" class="btn btn-primary" style="margin-bottom:10px;">Cek Kode</a></td>
+									</tr>
+									<tr>
+										<td>Nama Kamar</td>
+										<td>{{ rawat.kamar(class="", disabled="true")}}</td>
+										<td>{{ rawat.kamar_hidden(id="hidden_kamar", disabled="true")}}</td>
+									</tr>
+									<tr>
+									<td>Nama Dokter</td>
+											<td>{{ rawat.dokter(class="", disabled="true")}}</td>
+											<td>{{ rawat.dokter_hidden(id="hidden_dokter", disabled="true")}}</td>
+										</tr>
+									<tr>
+									<td></td>
+									<td>{{form.submit()}}</td>
+									
+									</tr>
+									</table>
+							</div>
+						</form> 
+	
+					</div>
+					<div class="modal-footer" id="footer_nama">
+						<div class="data-form">
+							<ul>
+								<li class="found"></li>
+							</ul>
+
+						</div>
+					</div>
+				</div>
+			
+				</div>
+			</div>
+		<div id="page-wrapper">
+			<!-- Header -->
+			<div id="header" style="height:60%">
+
+					<!-- Inner -->
+						<div class="inner">
+							<header>
+								<h1><a href="{{url_for('home')}}" id="logo">Data Pasien</a></h1>
+								<hr />
+								<button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal" style="margin-bottom:10px;">Tambah Pasien</button>
+								<button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#rawatModal" style="margin-bottom:10px;">Pendaftaran Rawat Inap</button>
+
+							</header>
+							
+						</div>
+
+					<!-- Nav -->
+						<nav id="nav">
+							<ul>
+								<li><a href="{{url_for('home')}}">Beranda</a></li>
+								<li>
+										<a href="{{ url_for('dataPasien')}}">Pasien</a>
+								
+								</li>
+								<li><a href="left-sidebar.html">Informasi</a></li>
+								<li><a href="right-sidebar.html">Pembayaran</a></li>
+								<li>
+										
+										{%  if  session.get('user') %}
+										<a href="#">User</a>
+										<ul>
+											<li><a href="{{ url_for('logout')}}">Logout</a></li>
+										</ul>
+										{% else %}
+										<li><a href="{{ url_for('login')}}">Login</a> / 	<a href="{{ url_for('Regis')}}">Register</a> </li>
+									
+										{% endif %}
+										
+								
+								</li>
+							</ul>
+						</nav>
+
+			</div>
+			<!-- Main -->
+			<div class="wrapper style1">
+
+				<div class="container">
+					<article id="main" class="special">
+						<header>
+							<!-- <h2><a href="#">Data Pasien Rumah Sakit Bunawan </a></h2> -->
+						
+						</header>
+						<div style="clear:both"></div>
+
+
+						<div class="tab">
+							<button class="tablinks active" onclick="openCity(event, 'Pasien')">Pasien</button>
+							<button class="tablinks" onclick="openCity(event, 'Rawat')">Rawat Inap</button>
+						</div>
+
+						<!-- Tab content -->
+						<div id="Pasien" class="tabcontent" style="display:block">
+							<table id="myTable" class="display">
+									<thead>
+										<tr>
+											<th>Kode Pasien</th>
+											<th>Nama Pasien</th>
+											<th>Jenis Kelamin</th>
+											<th>Umur</th>
+											<th>Alamat</th>
+											<th>Tanggal Daftar</th>
+											<th>Admin</th>
+											<th>Opsi</th>
+										</tr>
+									</thead>
+									<tbody>
+										{% for data in pasien %}
+										<tr>
+											<td data-column="{{data['kd_pasien']}}">{{data['kd_pasien']}}</td>
+											<td>{{data['nama_pasien']}}</td>
+											<td>{{data['jk']}}</td>
+											<td>{{data['umur']}}</td>
+											<td>{{data['alamat']}}</td>
+											<td>{{data['tanggal']}}</td>
+											<td>{{data['admin']}}</td>
+											<td> <button  data-id="{{data['kd_pasien']}}" data-toggle="modal" data-target="#editModal" class="btn btn-success editData"><i class="fa fa-edit" style="color:white"></i></button> <span></span> <button data-id="{{data['kd_pasien']}}" class="btn btn-danger deleteData"><i class="fa fa-close" style="color:white"></i></button> </td>
+										</tr>
+										{% endfor %}
+									</tbody>
+							</table>
+						</div>
+
+						<div id="Rawat" class="tabcontent">
+								<table id="myTable2" class="display">
+										<thead>
+											<tr>
+												<th>Kode Rawat</th>
+												<th>Nama Pasien</th>
+												<th>Nama Dokter</th>
+												<th>Spesialis</th>
+												<th>Nama Kamar</th>
+												<th>Kelas</th>
+												<th>Tanggal Masuk</th>
+												<th>Opsi</th>
+											</tr>
+										</thead>
+										<tbody>
+											{% for data in join %}
+											<tr>
+												<td data-column="{{data['kd_rawat']}}">{{data['kd_rawat']}}</td>
+												<td>{{data['nama_pasien']}}</td>
+												<td>{{data['nama_dokter']}}</td>
+												<td>{{data['spesialis']}}</td>
+												<td>{{data['nama_kamar']}}</td>
+												<td>{{data['kelas']}}</td>
+												<td>{{data['tanggal']}}</td>
+												<td> <button  data-id="{{data['kd_rawat']}}" data-toggle="modal" data-target="#editModal" class="btn btn-success editData"><i class="fa fa-edit" style="color:white"></i></button> <span></span> <button data-id="{{data['kd_rawat']}}" class="btn btn-danger deleteData"><i class="fa fa-close" style="color:white"></i></button> </td>
+											</tr>
+											{% endfor %}
+										</tbody>
+								</table>
+						</div>
+													
+					</article>
+					<hr />
+				</div>
+
+			</div>
+			<!-- Footer -->
+			<div id="footer">
+				<div class="container">
+					<hr />
+					<div class="row">
+						<div class="12u">
+
+							<!-- Contact -->
+							<section class="contact">
+									<header>
+										<h3>Jl. Margonda Raya No.2000, Depok.</h3>
+									</header>
+									<p>(021) 7765477</p>
+									<ul class="icons">
+										<li><a href="#" class="icon fa-twitter"><span class="label">Twitter</span></a></li>
+										<li><a href="#" class="icon fa-facebook"><span class="label">Facebook</span></a></li>
+										<li><a href="#" class="icon fa-instagram"><span class="label">Instagram</span></a></li>
+										<li><a href="#" class="icon fa-pinterest"><span class="label">Pinterest</span></a></li>
+										<li><a href="#" class="icon fa-dribbble"><span class="label">Dribbble</span></a></li>
+										<li><a href="#" class="icon fa-linkedin"><span class="label">Linkedin</span></a></li>
+									</ul>
+								</section>
+
+							<!-- Copyright -->
+								<div class="copyright">
+									<ul class="menu">
+										<li>&copy; Untitled. All rights reserved.</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+									</ul>
+								</div>
+
+						</div>
+
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Scripts -->
+		
+		<script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+		<script src="http://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+		<script src="{{ url_for('static', filename='vendor/bootstrap/js/popper.js') }}"></script>
+		<script src="{{ url_for('static', filename='vendor/bootstrap/js/bootstrap.min.js') }}"></script>
+		<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+		<script src="{{ url_for('static', filename='js/jquery.dropotron.min.js') }}"></script>
+		<script src="{{ url_for('static', filename='js/jquery.scrolly.min.js') }}"></script>
+		<script src="{{ url_for('static', filename='js/jquery.onvisible.min.js') }}"></script>
+		<script src="{{ url_for('static', filename='js/skel.min.js') }}"></script>
+		<script src="{{ url_for('static', filename='js/util.js') }}"></script>
+		<script src="{{ url_for('static', filename='js/style.js') }}"></script>
+		<script src="{{ url_for('static', filename='js/tab.js') }}"></script>
+		<script src="{{ url_for('static', filename='js/bootstrap3-typeahead.js') }}"></script>
+		<script>
+			$(document).ready( function () {
+				$('#myTable').DataTable();
+				$('#myTable2').DataTable();
+				var input = $('input#dokter');
+				var input2 = $('input#kamar');
+				var path = "{{url_for('getDoctor')}}";
+				var path2 = "{{url_for('getKamar')}}";
+				console.log(path)
+
+				input.typeahead({
+					source : function(query,process){
+						return $.get(path, function(data){
+							console.log(JSON.parse(data))
+							return process(JSON.parse(data))
+						})
+					}
+				});
+				input.change(function(){
+					
+					var current = input.typeahead("getActive");
+					console.log(current)
+					if(current){
+						if(current.name == input.val()){
+							console.log(current.kd)
+							$('#hidden_dokter').val(current.kd)
+						}
+					}
+				});
+
+				input2.typeahead({
+					source : function(query,process){
+						return $.get(path2, function(data){
+							console.log(JSON.parse(data))
+							return process(JSON.parse(data))
+						})
+					}
+				});
+				input2.change(function(){
+					
+					var current = input.typeahead("getActive");
+					console.log(current)
+					if(current){
+						if(current.name == input.val()){
+							console.log(current.kd)
+							$('#hidden_kamar').val(current.kd)
+						}
+					}
+				});
+
+			});
+
+
+
+			$('.editData').on('click', function(){
+				$(this).each(function(){
+					var id = $(this).data("id")
+					$.ajax({
+						url : '/editData',
+						data : {
+							id : id
+						},
+						type : 'POST',
+						success : function(res){
+							var data = JSON.parse(res);
+							$('#editNama').val(data[0]['nama_pasien'])
+							$('#editKD').val(data[0]['kd_pasien'])
+							$('#editAlamat').val(data[0]['alamat'])
+							$('#editUmur').val(data[0]['umur'])
+							if (data[0]['jk'] == 'Perempuan')
+							// console.log('perempuan')
+								$('#editJK-1').prop('checked',true);
+							else 
+								$('#editJK-0').prop('checked',true);
+						},
+						error : function(error){
+							console.log(error)
+						}
+					})
+				})
+			});
+
+			
+			$('#cekNama').on('click', function(){
+				var id = $('#pasien').val();
+					$.ajax({
+						url : '/getPasien',
+						data : {
+							id : id,
+						},
+						type : 'POST',
+						success : function(res){
+							var data = JSON.parse(res);
+							if (data.length > 0){
+								console.log(data)
+								$('.data-form').css("display", "block")
+								$('.data-form').css({"display": "block", "background-color" : "#2ecc71"})
+								$('#kamar').removeProp("disabled")
+								$('#dokter').removeProp("disabled")
+								$('.data-form > ul ').empty()
+								$('.data-form > ul ').append("<li> Nama          : " +  data[0]['nama']  + "</li>")
+								$('.data-form > ul ').append("<li> Umur          : " +  data[0]['umur']  + "</li>")
+								$('.data-form > ul ').append("<li> Jenis Kelamin : " +  data[0]['jk']  + "</li>")
+								$('.data-form > ul ').append("<li> Alamat        : " +  data[0]['alamat']  + "</li>")
+								$('.found').text("Data Ditemukan")
+							} else {
+								$('#kamar').prop("disabled", "true")
+								$('#dokter').prop("disabled", "true")
+								$('.data-form > ul ').empty()
+								$('.data-form').css({"display": "block", "background-color" : "#e74c3c"})
+								$('.data-form > ul ').append("<li> Data Tidak Ditemukan</li>")
+							}
+							
+						},
+						error : function(error){
+							console.log(error)
+						}
+					})
+			});
+			
+			$('.deleteData').on('click', function(){
+					$(this).each(function(){
+						var id = $(this).data("id")
+						swal({
+							title: "Yakin ingin menghapus?",
+							text: "Data tidak akan dapat dikembalikan jika terhapus!",
+							icon: "warning",
+							buttons: true,
+							dangerMode: true,
+							})
+							.then((willDelete) => {
+							if (willDelete) {
+								$.ajax({
+										url : '/deletePasien',
+										data : {
+											id : id
+										},
+										type : 'POST',
+										success : function(res){
+											console.log(res)
+											$("td[data-column='"+id+"']").parent("tr").hide();
+											swal("Data Terhapus!", {
+											icon: "success",
+											});
+										},
+										error : function(error){
+											console.log(error)
+										}
+									})
+							} else {
+								swal("Data Anda Aman!");
+							}
+						});
+					})
+				});
+		</script>
+	</body>
+</html>
